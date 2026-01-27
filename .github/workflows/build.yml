@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/qwen3-embedding-q8
+  IMAGE_NAME: rekalrasheed/qwen3-embedding-q8
 
 jobs:
   build:
