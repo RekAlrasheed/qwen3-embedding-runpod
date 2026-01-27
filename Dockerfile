@@ -7,18 +7,24 @@ WORKDIR /app
 RUN pip install --upgrade pip && \
     CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python==0.3.4 --no-cache-dir
 
-# Install RunPod SDK
-RUN pip install runpod==1.7.0
+# Install RunPod SDK and huggingface_hub
+RUN pip install runpod==1.7.0 huggingface_hub
+
+# Download model from HuggingFace (Q8_0 version - exact match)
+# Using local_dir_use_symlinks=False to ensure actual file is downloaded
+RUN mkdir -p /models && \
+    python -c "from huggingface_hub import hf_hub_download; \
+    path = hf_hub_download( \
+        repo_id='Mungert/Qwen3-Embedding-4B-GGUF', \
+        filename='Qwen3-Embedding-4B-q8_0.gguf', \
+        local_dir='/models', \
+        local_dir_use_symlinks=False \
+    ); \
+    print(f'Downloaded to: {path}')" && \
+    ls -la /models/
 
 # Copy handler
 COPY handler.py .
-
-# Download model from HuggingFace (Q8_0 version - exact match)
-RUN pip install huggingface_hub && \
-    python -c "from huggingface_hub import hf_hub_download; \
-    hf_hub_download(repo_id='Mungert/Qwen3-Embedding-4B-GGUF', \
-    filename='Qwen3-Embedding-4B-q8_0.gguf', \
-    local_dir='/models')"
 
 ENV MODEL_PATH=/models/Qwen3-Embedding-4B-q8_0.gguf
 ENV N_GPU_LAYERS=-1
