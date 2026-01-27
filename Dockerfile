@@ -10,18 +10,20 @@ RUN pip install --upgrade pip && \
 # Install RunPod SDK and huggingface_hub
 RUN pip install runpod==1.7.0 huggingface_hub
 
-# Download model from HuggingFace (Q8_0 version - exact match)
-# Using local_dir_use_symlinks=False to ensure actual file is downloaded
+# Download model from HuggingFace (Q8_0 version)
+# Download to cache first, then copy to known location
 RUN mkdir -p /models && \
     python -c "from huggingface_hub import hf_hub_download; \
+    import shutil; \
     path = hf_hub_download( \
         repo_id='Mungert/Qwen3-Embedding-4B-GGUF', \
-        filename='Qwen3-Embedding-4B-q8_0.gguf', \
-        local_dir='/models', \
-        local_dir_use_symlinks=False \
+        filename='Qwen3-Embedding-4B-q8_0.gguf' \
     ); \
-    print(f'Downloaded to: {path}')" && \
-    ls -la /models/
+    print(f'Downloaded to cache: {path}'); \
+    shutil.copy(path, '/models/Qwen3-Embedding-4B-q8_0.gguf'); \
+    print('Copied to /models/Qwen3-Embedding-4B-q8_0.gguf')" && \
+    ls -la /models/ && \
+    du -h /models/Qwen3-Embedding-4B-q8_0.gguf
 
 # Copy handler
 COPY handler.py .
