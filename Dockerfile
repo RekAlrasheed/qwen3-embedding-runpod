@@ -10,12 +10,19 @@ RUN pip install --upgrade pip && \
 # Install RunPod SDK
 RUN pip install runpod==1.7.0
 
-# Download model directly using wget (more reliable than huggingface_hub)
+# Cache bust: v4
+ARG CACHEBUST=4
+
+# Download model directly using wget
 RUN mkdir -p /models && \
-    wget -q --show-progress -O /models/Qwen3-Embedding-4B-q8_0.gguf \
+    echo "Starting download..." && \
+    wget --progress=dot:giga -O /models/Qwen3-Embedding-4B-q8_0.gguf \
     "https://huggingface.co/Mungert/Qwen3-Embedding-4B-GGUF/resolve/main/Qwen3-Embedding-4B-q8_0.gguf" && \
+    echo "Download complete. Checking file:" && \
     ls -la /models/ && \
-    echo "Model size:" && du -h /models/Qwen3-Embedding-4B-q8_0.gguf
+    echo "File size:" && \
+    du -h /models/Qwen3-Embedding-4B-q8_0.gguf && \
+    echo "File check passed."
 
 # Copy handler
 COPY handler.py .

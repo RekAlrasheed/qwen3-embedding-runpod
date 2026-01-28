@@ -32,6 +32,9 @@ jobs:
         with:
           context: .
           push: true
+          no-cache: true
+          build-args: |
+            CACHEBUST=${{ github.run_id }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v3
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v4
