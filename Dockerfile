@@ -7,23 +7,15 @@ WORKDIR /app
 RUN pip install --upgrade pip && \
     CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python==0.3.4 --no-cache-dir
 
-# Install RunPod SDK and huggingface_hub
-RUN pip install runpod==1.7.0 huggingface_hub
+# Install RunPod SDK
+RUN pip install runpod==1.7.0
 
-# Download model from HuggingFace (Q8_0 version)
-# Download to cache first, then copy to known location
+# Download model directly using wget (more reliable than huggingface_hub)
 RUN mkdir -p /models && \
-    python -c "from huggingface_hub import hf_hub_download; \
-    import shutil; \
-    path = hf_hub_download( \
-        repo_id='Mungert/Qwen3-Embedding-4B-GGUF', \
-        filename='Qwen3-Embedding-4B-q8_0.gguf' \
-    ); \
-    print(f'Downloaded to cache: {path}'); \
-    shutil.copy(path, '/models/Qwen3-Embedding-4B-q8_0.gguf'); \
-    print('Copied to /models/Qwen3-Embedding-4B-q8_0.gguf')" && \
+    wget -q --show-progress -O /models/Qwen3-Embedding-4B-q8_0.gguf \
+    "https://huggingface.co/Mungert/Qwen3-Embedding-4B-GGUF/resolve/main/Qwen3-Embedding-4B-q8_0.gguf" && \
     ls -la /models/ && \
-    du -h /models/Qwen3-Embedding-4B-q8_0.gguf
+    echo "Model size:" && du -h /models/Qwen3-Embedding-4B-q8_0.gguf
 
 # Copy handler
 COPY handler.py .

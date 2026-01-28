@@ -11,6 +11,19 @@ print("=" * 60, flush=True)
 print("HANDLER MODULE LOADED", flush=True)
 print("=" * 60, flush=True)
 
+# Debug: Show /models contents at startup
+print("Checking /models directory at startup:", flush=True)
+if os.path.exists("/models"):
+    for item in os.listdir("/models"):
+        full_path = os.path.join("/models", item)
+        if os.path.isfile(full_path):
+            size_gb = os.path.getsize(full_path) / (1024**3)
+            print(f"  FOUND: {item} ({size_gb:.2f} GB)", flush=True)
+        else:
+            print(f"  DIR: {item}/", flush=True)
+else:
+    print("  /models directory DOES NOT EXIST!", flush=True)
+
 # Global model variable - lazy loaded
 _llm = None
 _model_loaded = False
